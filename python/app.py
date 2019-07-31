@@ -76,7 +76,7 @@ def selected():
         chosen_times.append(chosen_time_dict)
     except NameError:
         chosen_times = [chosen_time_dict]
-
+    
     return 'Success'
 
 
