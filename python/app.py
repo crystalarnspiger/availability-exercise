@@ -13,7 +13,7 @@ CORS(app)
 
 
 def main(argv):
-    global chosen_times
+    global booked_times
     global unavailable
 
 
@@ -34,17 +34,17 @@ def availability():
         unavailable = []
     for day in availability_by_date:
         for timestamp in availability_by_date[day]:
-            opentime = parse(timestamp)
-            opentime = datetime.strftime(opentime, '%m/%d/%Y %I:%M %p')
+            open_time = parse(timestamp)
+            open_time = datetime.strftime(open_time, '%m/%d/%Y %I:%M %p')
             advisor_id = availability_by_date[day][timestamp]
-            if (opentime, advisor_id) not in unavailable:
+            if (open_time, advisor_id) not in unavailable:
                 try:
-                    availability_by_id_dict[advisor_id]['opentimes'].append(opentime)
-                    availability_by_id_dict[advisor_id]['opentimes'].sort()
+                    availability_by_id_dict[advisor_id]['open_times'].append(open_time)
+                    availability_by_id_dict[advisor_id]['open_times'].sort()
                 except KeyError:
                     availability_by_id_dict[availability_by_date[day][timestamp]] = {
                         'id': advisor_id,
-                        'opentimes': [opentime]
+                        'open_times': [open_time]
                     }
     availability_by_id = sorted(list(availability_by_id_dict.values()), key=itemgetter('id'))
 
@@ -71,20 +71,20 @@ def selected():
     except NameError:
         unavailable = [unavailable_time]
 
-    global chosen_times
+    global booked_times
     try:
-        chosen_times.append(chosen_time_dict)
+        booked_times.append(chosen_time_dict)
     except NameError:
-        chosen_times = [chosen_time_dict]
-    
+        booked_times = [chosen_time_dict]
+
     return 'Success'
 
 
 @app.route("/booked", methods=["GET"])
 def booked():
     try:
-        global chosen_times
-        booked = chosen_times
+        global booked_times
+        booked = booked_times
     except NameError:
         booked = []
 

@@ -104,10 +104,10 @@ class App extends Component {
                   <td>{advisor.id}</td>
                   <td>
                     <ul className="list-unstyled">
-                      {advisor.opentimes.map((opentime, index) => {
+                      {advisor.open_times.map((open_time, index) => {
                         return <li>
-                                <time dateTime={opentime} className="book-time">{opentime}</time>
-                                <button className="book btn-small btn-primary" onClick={this.handleClick.bind(this, advisor.id, opentime)}>Book</button>
+                                <time dateTime={open_time} className="book-time">{open_time}</time>
+                                <button className="book btn-small btn-primary" onClick={this.handleClick.bind(this, advisor.id, open_time)}>Book</button>
                               </li>
                       })}
                     </ul>
