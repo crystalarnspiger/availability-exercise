@@ -39,32 +39,75 @@ class App extends Component {
     }
   }
 
+  sendChosenTime(student_name, advisor_id, chosen_time) {
+    const data = {
+      "student_name": student_name,
+      "advisor_id": advisor_id,
+      "chosen_time": chosen_time
+    }
+    fetch("http://localhost:4433/selected",
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    ).then(() => {
+        this.fetchBookedTimes()
+        this.fetchAvailability();
+    });
+  }
+
   handleClick = (advisor_id, chosen_time) => {
     console.log("button clicked");
     if (this.state.name) {
       this.setState({formerror: null})
-      const data = {
-        "student_name": this.state.name,
-        "advisor_id": advisor_id,
-        "chosen_time": chosen_time
-      }
-      fetch("http://localhost:4433/selected",
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          method: 'POST',
-          body: JSON.stringify(data)
-        }
-      )
-      .then(() => {
-        this.fetchBookedTimes()
-        this.fetchAvailability();
-      });
+      this.sendChosenTime(this.state.name, advisor_id, chosen_time);
     } else {
       this.setState({formerror: 'Please enter a name to book a time.'})
       window.scrollTo(0, 0);
     }
+  }
+
+  renderAvailabilityTimeList(advisor) {
+    return advisor.open_times.map((open_time, index) => {
+      return <li>
+        <time dateTime={open_time}
+          className="book-time">{open_time}</time>
+        <button className="book btn-small btn-primary"
+          onClick={this.handleClick.bind(this, advisor.id, open_time)}>
+          Book
+        </button>
+      </li>
+    })
+  }
+
+  renderAvailabilityTable() {
+      return this.state.availability.map((advisor, key) => {
+        return (
+          <tr key={advisor.id}>
+            <td>{advisor.id}</td>
+            <td>
+              <ul className="list-unstyled">
+                {this.renderAvailabilityTimeList(advisor)}
+              </ul>
+            </td>
+          </tr>
+        )
+        })
+  }
+
+  renderBookedTable() {
+      return this.state.booked.map((booked, key) => {
+        return (
+          <tr key={booked.chosen_time}>
+            <td>{booked.advisor_id}</td>
+            <td>{booked.student_name}</td>
+            <td>{booked.chosen_time}</td>
+          </tr>
+        )
+        })
   }
 
   render() {
@@ -98,28 +141,7 @@ class App extends Component {
           </thead>
           {this.state.availability &&
             <tbody>
-            {this.state.availability.map((advisor, key) => {
-              return (
-                <tr key={advisor.id}>
-                  <td>{advisor.id}</td>
-                  <td>
-                    <ul className="list-unstyled">
-                      {advisor.open_times.map((open_time, index) => {
-                        return <li>
-                          <time dateTime={open_time}
-                            className="book-time">{open_time}</time>
-                          <button className="book btn-small btn-primary"
-                            onClick={this.handleClick.bind(this, advisor.id, open_time)}>
-                            Book
-                          </button>
-                        </li>
-                      })}
-                    </ul>
-                  </td>
-                </tr>
-              )
-              })
-            }
+              {this.renderAvailabilityTable()}
             </tbody>
           }
         </table>
@@ -136,16 +158,7 @@ class App extends Component {
           </thead>
           {this.state.booked &&
             <tbody>
-            {this.state.booked.map((booked, key) => {
-              return (
-                <tr key={booked.chosen_time}>
-                  <td>{booked.advisor_id}</td>
-                  <td>{booked.student_name}</td>
-                  <td>{booked.chosen_time}</td>
-                </tr>
-              )
-              })
-            }
+            {this.renderBookedTable()}
             </tbody>
           }
         </table>
