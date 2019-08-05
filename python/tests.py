@@ -77,7 +77,6 @@ class TestCallExternalApiFunctions(object):
         response = requests.get('https://www.thinkful.com/api/advisors/availability')
         self.date_availability = response.json()
         self.date_key = list(self.date_availability.keys())[0]
-        print (self.date_key)
 
     def test_call_availabilty_api(self):
         availability = app.call_availability_api('GET')
@@ -111,7 +110,6 @@ class TestCallExternalApiFunctions(object):
         test_availability_ids = []
         for availability in availability_by_id:
             test_availability_ids.append(availability['id'])
-            print (availability['id'])
         assert test_advisor not in  test_availability_ids
 
 
@@ -147,7 +145,6 @@ class TestApis(object):
     def test_booked(booked_times):
         with app.app.test_client() as cli:
             resp = cli.get('/booked')
-            print (resp.json)
             assert resp.status_code == 200
             assert 'Crystal Arnspiger' in resp.json['booked'][0].values()
 
