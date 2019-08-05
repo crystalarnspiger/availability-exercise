@@ -14,12 +14,11 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-
-def main(argv):
-    global booked_times
-    global unavailable
+booked_times = []
+unavailable = []
 
 
+#Non API functions
 def call_availability_api(method):
     if method == 'GET':
         response = requests.get('https://www.thinkful.com/api/advisors/availability')
@@ -39,37 +38,21 @@ def call_availability_api(method):
 
 def get_unavailable():
     global unavailable
-    try:
-        return unavailable
-    except NameError:
-        return []
+    return unavailable
 
 
 def get_booked_times():
     global booked_times
-    try:
-        return booked_times
-    except NameError:
-        return []
+    return booked_times
 
 
 def update_unavailable(unavailable_time):
     global unavailable
-    try:
-        unavailable = unavailable
-    except NameError:
-        unavailable = []
-
     unavailable.append(unavailable_time)
 
 
 def update_booked_times(booked_time):
     global booked_times
-    try:
-        booked_times = booked_times
-    except NameError:
-        booked_times = []
-
     booked_times.append(booked_time)
 
 
@@ -85,6 +68,21 @@ def availability_by_time(date_availability):
         availability_times.update(date_availability[day])
 
     return availability_times
+
+
+def book_time(selection_data):
+    student_name = selection_data.get('student_name')
+    chosen_time = selection_data.get('chosen_time')
+    advisor_id = selection_data.get('advisor_id')
+
+    chosen_time_dict = {
+        'student_name': student_name,
+        'chosen_time': chosen_time,
+        'advisor_id': advisor_id
+    }
+
+    update_booked_times(chosen_time_dict)
+    update_unavailable((chosen_time, advisor_id))
 
 
 def availability_by_advisor(date_availability):
@@ -108,21 +106,7 @@ def availability_by_advisor(date_availability):
     return sorted(list(availability_by_id_dict.values()), key=itemgetter('id'))
 
 
-def book_time(selection_data):
-    student_name = selection_data.get('student_name')
-    chosen_time = selection_data.get('chosen_time')
-    advisor_id = selection_data.get('advisor_id')
-
-    chosen_time_dict = {
-        'student_name': student_name,
-        'chosen_time': chosen_time,
-        'advisor_id': advisor_id
-    }
-
-    update_booked_times(chosen_time_dict)
-    update_unavailable((chosen_time, advisor_id))
-
-
+#APIs
 @app.route("/today", methods=["GET"])
 def today():
     return jsonify({"today": date.today().isoformat()})
